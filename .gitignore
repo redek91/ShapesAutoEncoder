@@ -1,1 +1,3 @@
 node_modules
+MLModel/TrainDataGenerator/out
+MLModel/TrainDataGenerator/Data/*

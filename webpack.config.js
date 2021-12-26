@@ -90,6 +90,7 @@ module.exports = (enc, arg) => {
     },
     devServer: {
       static: "./dist",
+      port: 4200,
       hot: true,
     }
   }

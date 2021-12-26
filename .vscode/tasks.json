@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [{
+    "label": "Run Sketch",
+    "type": "shell",
+    "group": {
+      "kind": "build",
+      "isDefault": true
+    },
+    "command": "${config:processing.path}",
+    "presentation": {
+      "echo": true,
+      "reveal": "always",
+      "focus": false,
+      "panel": "dedicated"
+    },
+    "args": [
+      "--force",
+      "--sketch=${workspaceRoot}/MLModel/TrainDataGenerator",
+      "--output=${workspaceRoot}/MLModel/TrainDataGenerator/out",
+      "--run"
+    ],
+    "windows": {
+      "type": "process",
+      "args": [
+        "--force",
+        {
+          "value": "--sketch=${workspaceRoot}/MLModel/TrainDataGenerator",
+          "quoting": "strong"
+        },
+        {
+          "value": "--output=${workspaceRoot}/MLModel/TrainDataGenerator\\out",
+          "quoting": "strong"
+        },
+        "--run"
+      ]
+    }
+  }]
+}

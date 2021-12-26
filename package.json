@@ -7,7 +7,8 @@
     "start": "webpack serve --mode=development",
     "watch": "webpack --watch --mode=development",
     "build": "webpack --mode=production",
-    "build-dev": "webpack --mode=development"
+    "build-dev": "webpack --mode=development",
+    "train": "ts-node ./MLModel/ModelTrainer/index.ts"
   },
   "repository": {
     "type": "git",
@@ -24,20 +25,29 @@
     "@babel/core": "^7.16.5",
     "@babel/preset-env": "^7.16.5",
     "@babel/preset-typescript": "^7.16.5",
+    "@tensorflow/tfjs-node-gpu": "^3.12.0",
+    "@types/p5": "^1.3.2",
     "babel-loader": "^8.2.3",
     "clean-webpack-plugin": "^4.0.0",
     "core-js": "^3.20.0",
     "css-loader": "^6.5.1",
     "html-webpack-plugin": "^5.5.0",
+    "jimp": "^0.16.1",
     "mini-css-extract-plugin": "^2.4.5",
+    "numeral": "^2.0.6",
     "postcss": "^8.4.5",
     "postcss-loader": "^6.2.1",
     "postcss-preset-env": "^7.1.0",
     "sass": "^1.45.1",
     "sass-loader": "^12.4.0",
     "ts-loader": "^9.2.6",
+    "ts-node": "^10.4.0",
     "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.6.0"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^3.12.0",
+    "p5": "^1.4.0"
   }
 }
