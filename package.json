@@ -9,7 +9,7 @@
     "watch": "webpack --watch --mode=development",
     "build": "webpack --mode=production",
     "build-dev": "webpack --mode=development",
-    "train": "ts-node ./MLModel/ModelTrainer/index.ts"
+    "train": "node --loader ts-node/esm ./MLModel/ModelTrainer/index.ts"
   },
   "repository": {
     "type": "git",
