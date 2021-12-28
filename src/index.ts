@@ -7,7 +7,7 @@ import "../MLModel/ModelTrainer/decoderModel/weights.bin";
 import { LayersModel } from "@tensorflow/tfjs";
 
 const MODEL_WIDTH = 28;
-const MODEL_LATENT_VARS = 4;
+const MODEL_LATENT_VARS = 8;
 const CANVAS_SIZE = 280;
 const PIXEL_DENSITY = 1;
 
@@ -16,8 +16,9 @@ let scale: number;
 let density: number;
 
 let sliders: any = [];
-let sliderValues = [0.5, 0.5, 0.5, 0.5];
+let sliderValues: number[] = [];
 let slidersChanged = true;
+let autoscroll = false;
 
 let currentImage: number[];
 
@@ -46,12 +47,18 @@ const sketch = (s: p5) => {
       currentSlider.input(() => (slidersChanged = true));
       sliders.push(currentSlider);
     }
+
+    const autoscrollEnabled: any = s.createCheckbox("autoscroll", false);
+    autoscrollEnabled.changed(() => (autoscroll = autoscrollEnabled.checked()));
     // Load first image
     await nextImage();
     console.log("finished setup");
   };
 
   s.draw = async () => {
+    if (autoscroll) {
+      changeValues();
+    }
     if (slidersChanged) {
       await nextImage();
       if (currentImage != null) render();
@@ -82,12 +89,23 @@ const sketch = (s: p5) => {
   async function nextImage(): Promise<void> {
     for (let i = 0; i < MODEL_LATENT_VARS; i++) {
       sliderValues[i] = sliders[i].value();
-
-      const x_text = tf.tensor2d([sliderValues]);
-      const output: any = decoder.predict(x_text);
-      currentImage = (await output.array())[0];
     }
+    const x_text = tf.tensor2d([sliderValues]);
+    const output: any = decoder.predict(x_text);
+    currentImage = (await output.array())[0];
+
     console.log("Loaded new image");
+  }
+
+  function changeValues() {
+    for (let i = 0; i < MODEL_LATENT_VARS; i++) {
+      // This should be a nice smooth opensimplex noise walk, next time!!!
+      let offset = 0.01;
+      sliderValues[i] += s.random(-offset, offset);
+      sliderValues[i] = s.constrain(sliderValues[i], 0, 1);
+      sliders[i].value(sliderValues[i]);
+    }
+    slidersChanged = true;
   }
 };
 
