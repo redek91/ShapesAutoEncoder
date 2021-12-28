@@ -1,11 +1,10 @@
 import * as tf from "@tensorflow/tfjs-node-gpu";
 import numeral from "numeral";
 import jimp from "jimp";
-import { test_util } from "@tensorflow/tfjs-node-gpu";
 
 const INPUT_WIDTH = 28;
-const EPOCHS = 50;
-const INPUT_SIZE = 5000;
+const EPOCHS = 200;
+const INPUT_SIZE = 20000;
 
 main();
 //test();
@@ -13,7 +12,7 @@ main();
 async function test(): Promise<void> {
   const autoencoder = await tf.loadLayersModel("file://MLModel/ModelTrainer/autoEncoderModel/model.json");
 
-  const images = await trainingData(200);
+  const images = await trainingData(5);
   const x_test = tf.tensor2d(images);
   await generateTests(autoencoder, x_test);
 }
@@ -96,6 +95,11 @@ function buildModel() {
     })
   );
   autoencoder.add(
+    tf.layers.dropout({
+      rate: 0.3,
+    })
+  );
+  autoencoder.add(
     tf.layers.dense({
       units: 4,
       activation: "relu",
@@ -105,7 +109,6 @@ function buildModel() {
   const decoderLayers: tf.layers.Layer[] = [];
   decoderLayers.push(
     tf.layers.dense({
-      inputShape: [4],
       units: 16,
       activation: "relu",
     })
