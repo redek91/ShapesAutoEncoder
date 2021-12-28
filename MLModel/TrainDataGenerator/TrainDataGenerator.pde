@@ -1,8 +1,8 @@
-final int DATASET_SIZE = 5000;
+final int DATASET_SIZE = 20000;
 final int DATA_DIMENSION = 28;
 final boolean SAVE = true; // Save images
 final boolean RANDOM_COLOR = false; // Only black if false
-final boolean RANDOM_SHAPE = false; // Only squares if false
+final boolean RANDOM_SHAPE = true; // Only squares if false
 
 
 int counter = 0;
@@ -22,7 +22,7 @@ void draw() {
   if (RANDOM_COLOR){
     shapeColor = color(random(0,255), random(0,255), random(0,255));
   } else {
-    shapeColor = color(1);
+    shapeColor = color(0);
   }
    
   int shapeType;
@@ -32,7 +32,7 @@ void draw() {
     shapeType = 0; // Only squares
   }
 
-  strokeWeight(5);
+  strokeWeight(16);
   stroke(shapeColor);
   rectMode(RADIUS);
 
@@ -83,7 +83,7 @@ void drawTriangle(float size) {
   if (SAVE) {
     PImage img = get();
     img.resize(DATA_DIMENSION,DATA_DIMENSION);
-    img.save("Data/triangle" + nf(counter, 5) + ".png");
+    img.save("Data/square" + nf(counter, 5) + ".png");
   }
 }
 
@@ -93,7 +93,7 @@ void drawCircle(float size) {
   if (SAVE) {
     PImage img = get();
     img.resize(DATA_DIMENSION,DATA_DIMENSION);
-    img.save("Data/circle" + nf(counter, 5) + ".png");
+    img.save("Data/square" + nf(counter, 5) + ".png");
   }
 }
 
@@ -105,6 +105,6 @@ void drawEllipse(float size) {
   if (SAVE) {
     PImage img = get();
     img.resize(DATA_DIMENSION,DATA_DIMENSION);
-    img.save("Data/ellipse" + nf(counter, 5) + ".png");
+    img.save("Data/square" + nf(counter, 5) + ".png");
   }
 }
