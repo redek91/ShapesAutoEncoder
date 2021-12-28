@@ -7,7 +7,6 @@ const EPOCHS = 200;
 const INPUT_SIZE = 20000;
 
 main();
-//test();
 
 async function test(): Promise<void> {
   const autoencoder = await tf.loadLayersModel("file://MLModel/ModelTrainer/autoEncoderModel/model.json");
@@ -31,6 +30,8 @@ async function main(): Promise<void> {
 
   autoencoder.summary();
   decoder.summary();
+
+  await test();
 }
 
 /**

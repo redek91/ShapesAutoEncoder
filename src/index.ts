@@ -8,7 +8,7 @@ import { LayersModel } from "@tensorflow/tfjs";
 
 const MODEL_WIDTH = 28;
 const MODEL_LATENT_VARS = 8;
-const CANVAS_SIZE = 280;
+const CANVAS_SIZE = 480;
 const PIXEL_DENSITY = 1;
 
 let decoder: LayersModel;
