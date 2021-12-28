@@ -4,9 +4,11 @@ import jimp from "jimp";
 import { test_util } from "@tensorflow/tfjs-node-gpu";
 
 const INPUT_WIDTH = 28;
+const EPOCHS = 50;
+const INPUT_SIZE = 5000;
 
-//main();
-test();
+main();
+//test();
 
 async function test(): Promise<void> {
   const autoencoder = await tf.loadLayersModel("file://MLModel/ModelTrainer/autoEncoderModel/model.json");
@@ -17,18 +19,19 @@ async function test(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const images = await trainingData(5000);
+  const images = await trainingData(INPUT_SIZE);
 
   const { decoderLayers, autoencoder } = buildModel();
 
   const x_train = tf.tensor2d(images);
-  await trainModel(autoencoder, x_train, 200);
+  await trainModel(autoencoder, x_train, EPOCHS);
   await autoencoder.save("file://MLModel/ModelTrainer/autoEncoderModel");
 
   const decoder = createDecoder(decoderLayers);
   await decoder.save("file://MLModel/ModelTrainer/decoderModel");
 
-  console.log(autoencoder.summary());
+  autoencoder.summary();
+  decoder.summary();
 }
 
 /**
@@ -102,6 +105,7 @@ function buildModel() {
   const decoderLayers: tf.layers.Layer[] = [];
   decoderLayers.push(
     tf.layers.dense({
+      inputShape: [4],
       units: 16,
       activation: "relu",
     })

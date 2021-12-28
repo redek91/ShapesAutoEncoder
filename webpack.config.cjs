@@ -41,6 +41,19 @@ module.exports = (enc, arg) => {
           ]
         },
         {
+          // Load model
+          test: /\.(json|bin)$/,
+          type: "asset",
+          //include: path.resolve(__dirname, 'MLModel/ModelTrainer/decoderModel'),
+          use: [{
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'model/',
+            },
+          }]
+        },
+        {
           test: /\.(png|jpe?g|gif|svg)$/i,
           /**
            * The `type` setting replaces the need for "url-loader"
@@ -79,8 +92,6 @@ module.exports = (enc, arg) => {
         }
       ]
     },
-
-
     plugins: plugins,
     // Temporary workaround for 'browserslist' bug that is being patched in the near future
     target: arg.env === "production" ? "browserslist" : "web",

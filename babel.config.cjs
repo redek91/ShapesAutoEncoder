@@ -8,5 +8,8 @@ module.exports = {
         debug: true
       }
     ]
+  ],
+  plugins: [
+    "@babel/plugin-proposal-class-properties"
   ]
 }
