@@ -2,9 +2,10 @@ import * as tf from "@tensorflow/tfjs-node-gpu";
 import numeral from "numeral";
 import jimp from "jimp";
 
-const INPUT_WIDTH = 28;
-const EPOCHS = 200;
-const INPUT_SIZE = 20000;
+const INPUT_WIDTH = 48;
+const EPOCHS = 400;
+const INPUT_SIZE = 5000;
+const MORE_SHAPES = true;
 
 main();
 
@@ -42,10 +43,10 @@ async function main(): Promise<void> {
 async function trainingData(quantity: number): Promise<number[][]> {
   const trainingData: number[][] = [];
 
-  // Read raw data
+  // Read raw data squares
   for (let i = 0; i < quantity; i++) {
     const num = numeral(i).format("00000");
-    const img = await jimp.read(`MLModel/TrainDataGenerator/Data/square${num}.png`);
+    const img = await jimp.read(`MLModel/TrainDataGenerator/Data/squares/${num}.png`);
 
     let rawData: number[] = [];
     for (let j = 0; j < INPUT_WIDTH * INPUT_WIDTH; j++) {
@@ -55,11 +56,68 @@ async function trainingData(quantity: number): Promise<number[][]> {
       // Normalize
       rawData[j] = r / 255.0;
     }
-    trainingData[i] = rawData;
+    trainingData.push(rawData);
+    process.stdout.write(`\rloading squares: ${i + 1} / ${quantity}`);
+  }
+  console.log("");
+
+  if (MORE_SHAPES) {
+    // Read raw data circles
+    for (let i = 0; i < quantity; i++) {
+      const num = numeral(i).format("00000");
+      const img = await jimp.read(`MLModel/TrainDataGenerator/Data/circles/${num}.png`);
+
+      let rawData: number[] = [];
+      for (let j = 0; j < INPUT_WIDTH * INPUT_WIDTH; j++) {
+        let rgbaIndex = j * 4;
+        let r = img.bitmap.data[rgbaIndex + 0];
+
+        // Normalize
+        rawData[j] = r / 255.0;
+      }
+      trainingData.push(rawData);
+      process.stdout.write(`\rloading circles: ${i + 1} / ${quantity}`);
+    }
+    console.log("");
+
+    // Read raw data ellipses
+    for (let i = 0; i < quantity; i++) {
+      const num = numeral(i).format("00000");
+      const img = await jimp.read(`MLModel/TrainDataGenerator/Data/ellipses/${num}.png`);
+
+      let rawData: number[] = [];
+      for (let j = 0; j < INPUT_WIDTH * INPUT_WIDTH; j++) {
+        let rgbaIndex = j * 4;
+        let r = img.bitmap.data[rgbaIndex + 0];
+
+        // Normalize
+        rawData[j] = r / 255.0;
+      }
+      trainingData.push(rawData);
+      process.stdout.write(`\rloading ellipses: ${i + 1} / ${quantity}`);
+    }
+    console.log("");
+
+    // Read raw data triangles
+    for (let i = 0; i < quantity; i++) {
+      const num = numeral(i).format("00000");
+      const img = await jimp.read(`MLModel/TrainDataGenerator/Data/triangles/${num}.png`);
+
+      let rawData: number[] = [];
+      for (let j = 0; j < INPUT_WIDTH * INPUT_WIDTH; j++) {
+        let rgbaIndex = j * 4;
+        let r = img.bitmap.data[rgbaIndex + 0];
+
+        // Normalize
+        rawData[j] = r / 255.0;
+      }
+      trainingData.push(rawData);
+      process.stdout.write(`\rloading triangles: ${i + 1} / ${quantity}`);
+    }
+    console.log("");
   }
 
-  // Normalize values
-
+  console.log(`Loaded ${trainingData.length} images!`);
   return trainingData;
 }
 
@@ -72,26 +130,8 @@ function buildModel() {
 
   autoencoder.add(
     tf.layers.dense({
-      units: 256,
+      units: 512,
       inputShape: [INPUT_WIDTH * INPUT_WIDTH],
-      activation: "relu",
-    })
-  );
-  autoencoder.add(
-    tf.layers.dense({
-      units: 128,
-      activation: "relu",
-    })
-  );
-  autoencoder.add(
-    tf.layers.dense({
-      units: 64,
-      activation: "relu",
-    })
-  );
-  autoencoder.add(
-    tf.layers.dense({
-      units: 16,
       activation: "relu",
     })
   );
@@ -102,18 +142,24 @@ function buildModel() {
   );
   autoencoder.add(
     tf.layers.dense({
-      units: 4,
+      units: 128,
+      activation: "relu",
+    })
+  );
+  autoencoder.add(
+    tf.layers.dense({
+      units: 64,
+      activation: "relu",
+    })
+  );
+  autoencoder.add(
+    tf.layers.dense({
+      units: 8,
       activation: "relu",
     })
   );
 
   const decoderLayers: tf.layers.Layer[] = [];
-  decoderLayers.push(
-    tf.layers.dense({
-      units: 16,
-      activation: "relu",
-    })
-  );
   decoderLayers.push(
     tf.layers.dense({
       units: 64,
@@ -128,7 +174,7 @@ function buildModel() {
   );
   decoderLayers.push(
     tf.layers.dense({
-      units: 256,
+      units: 512,
       activation: "relu",
     })
   );
@@ -164,13 +210,22 @@ function createDecoder(decoderLayers: any[]): tf.Sequential {
   const decoder = tf.sequential();
 
   for (let layer of decoderLayers) {
-    const newLayer = tf.layers.dense({
-      units: layer.units,
-      activation: layer.activation,
-      inputShape: [layer.kernel.shape[0]],
-    });
-    decoder.add(newLayer);
-    newLayer.setWeights(layer.getWeights());
+    if (layer.activation !== undefined) {
+      const newLayer = tf.layers.dense({
+        units: layer.units,
+        activation: layer.activation,
+        inputShape: [layer.kernel.shape[0]],
+      });
+      decoder.add(newLayer);
+      newLayer.setWeights(layer.getWeights());
+    } else {
+      decoder.add(
+        tf.layers.dropout({
+          rate: layer.rate,
+          //inputShape: [layer.kernel.shape[0]],
+        })
+      );
+    }
   }
 
   decoder.compile({
@@ -203,7 +258,7 @@ async function generateTests(autoencoder: any, x_test: any) {
       },
       (err, image) => {
         const num = numeral(i).format("0000");
-        image.write(`MLModel/ModelTrainer/testOutput/square${num}.png`);
+        image.write(`MLModel/ModelTrainer/testOutput/${num}.png`);
       }
     );
   }
